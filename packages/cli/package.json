@@ -1,0 +1,60 @@
+{
+  "name": "trezo",
+  "description": "",
+  "version": "0.0.5",
+  "author": "thelastofinusa",
+  "license": "MIT",
+  "main": "./dist/cli.js",
+  "module": "./dist/cli.mjs",
+  "types": "./dist/cli.d.ts",
+  "bin": {
+    "trezo": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "build": "tsup src/cli.ts --format esm,cjs --dts",
+    "dev": "tsx src/cli.ts init",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "publish-package": "npm version patch --no-git-tag-version && npm publish"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.mts",
+    "LICENSE",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/degit": "^2.8.6",
+    "@types/node": "^25.3.3",
+    "@types/which-pm-runs": "^1.0.2",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.1.0",
+    "degit": "^2.8.4",
+    "execa": "^9.6.1",
+    "picocolors": "^1.1.1",
+    "which-pm-runs": "^1.1.0"
+  },
+  "keywords": [
+    "trezo",
+    "scaffold",
+    "cli",
+    "dapp",
+    "web3",
+    "multi-chain",
+    "template",
+    "bootstrap",
+    "starter",
+    "project",
+    "framework",
+    "variant",
+    "nextjs",
+    "hardhat",
+    "foundry"
+  ]
+}

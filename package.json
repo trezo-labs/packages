@@ -1,0 +1,30 @@
+{
+  "name": "trezo",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "thelastofinusa",
+  "scripts": {
+    "build": "pnpm -r build",
+    "link": "pnpm install",
+    "typecheck": "pnpm -r typecheck",
+    "install::all": "pnpm -r install",
+    "publish::all": "pnpm -r publish-package"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react",
+        "react-dom",
+        "zod",
+        "utf-8-validate",
+        "bufferutil",
+        "react-is"
+      ],
+      "allowedVersions": {
+        "react": "19",
+        "react-dom": "19"
+      }
+    }
+  }
+}
