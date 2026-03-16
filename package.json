@@ -1,5 +1,5 @@
 {
-  "name": "trezo",
+  "name": "trezo-packages",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -8,8 +8,7 @@
     "build": "pnpm -r build",
     "link": "pnpm install",
     "typecheck": "pnpm -r typecheck",
-    "install::all": "pnpm -r install",
-    "publish::all": "pnpm -r publish-package"
+    "install::all": "pnpm -r install"
   },
   "pnpm": {
     "peerDependencyRules": {
