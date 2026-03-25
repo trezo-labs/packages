@@ -1,7 +1,7 @@
 {
   "name": "trezo",
-  "description": "",
-  "version": "0.0.5",
+  "description": "Trezo is not a blockchain SDK. It is an architecture for building Web3 applications.",
+  "version": "1.0.1",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/cli.js",
@@ -11,11 +11,19 @@
     "trezo": "./dist/cli.mjs"
   },
   "scripts": {
-    "build": "tsup src/cli.ts --format esm,cjs --dts",
-    "dev": "tsx src/cli.ts init",
+    "build": "tsup src/cli.ts --format esm",
+    "init": "tsx src/cli.ts init",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "publish-package": "npm version patch --no-git-tag-version && npm publish"
+  },
+  "homepage": "https://trezosite.vercel.app/docs/cli",
+  "bugs": {
+    "url": "https://github.com/trezo-labs/packages/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trezo-labs/packages.git"
   },
   "files": [
     "dist/**/*.js",
@@ -27,34 +35,34 @@
   ],
   "devDependencies": {
     "@types/degit": "^2.8.6",
-    "@types/node": "^25.3.3",
-    "@types/which-pm-runs": "^1.0.2",
+    "@types/node": "^25.5.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
     "degit": "^2.8.4",
-    "execa": "^9.6.1",
-    "picocolors": "^1.1.1",
-    "which-pm-runs": "^1.1.0"
+    "inquirer": "^13.3.2",
+    "ora": "^9.3.0",
+    "zod": "^4.3.6"
   },
   "keywords": [
-    "trezo",
-    "scaffold",
-    "cli",
-    "dapp",
     "web3",
-    "multi-chain",
-    "template",
-    "bootstrap",
+    "cli",
+    "typescript",
+    "ethereum",
+    "blockchain",
+    "dapp",
+    "scaffold",
     "starter",
-    "project",
-    "framework",
-    "variant",
-    "nextjs",
-    "hardhat",
-    "foundry"
+    "template",
+    "degit",
+    "project-generator",
+    "developer-tool",
+    "nodejs",
+    "automation",
+    "web3-architecture"
   ]
 }

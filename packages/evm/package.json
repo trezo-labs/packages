@@ -58,15 +58,6 @@
     "viem": "^2.21.0",
     "wagmi": "^2.14.9"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "utf-8-validate",
-        "bufferutil",
-        "zod"
-      ]
-    }
-  },
   "devDependencies": {
     "@metamask/providers": "^22.1.1",
     "@types/node": "^25.5.0",

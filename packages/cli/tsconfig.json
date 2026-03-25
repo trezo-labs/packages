@@ -2,7 +2,6 @@
   "compilerOptions": {
     "lib": ["DOM", "ES2022", "DOM.Iterable"],
     "esModuleInterop": true,
-    "jsx": "react-jsx",
     "module": "ESNext",
     "skipLibCheck": true,
     "strict": true,
@@ -16,5 +15,5 @@
       "@/*": ["./*", "./src/*"]
     }
   },
-  "include": [".eslintrc.cjs", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts"]
 }

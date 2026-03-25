@@ -1,55 +1,52 @@
 #!/usr/bin/env node
 
-import { argv } from "process";
-import color from "picocolors";
-
+import chalk from "chalk";
+import { Command } from "commander";
 import { name, version } from "@/package.json";
-import { scaffoldCommand } from "./command";
+import { scaffoldCommand } from "./command/scaffold";
 
-async function main() {
-  const args = argv.slice(2);
+const program = new Command();
 
-  // Global flags
-  if (args.includes("--help") || args.includes("-h")) {
-    console.log(color.bold("\nTrezo CLI\n"));
-    console.log("Usage:");
-    console.log("  npx trezo <command> [options]\n");
-    console.log("Commands:");
-    console.log("  init  Initialize a new multi-chain Web3 project\n");
-    console.log("Options:");
-    console.log("  -h, --help      Show this help message");
-    console.log("  -v, --version   Show the CLI version\n");
-    process.exit(0);
-  }
+// -------------------------
+// Global config
+// -------------------------
+program
+  .name(name)
+  .description("Trezo CLI")
+  .version(version, "-v, --version", "Show CLI version");
 
-  if (args.includes("--version") || args.includes("-v")) {
-    console.log(`${name} v${version}`);
-    process.exit(0);
-  }
+// -------------------------
+// init command
+// -------------------------
+program
+  .command("init")
+  .argument("[project-name]", "Name of your project")
+  .description("Initialize a new multi-chain Web3 project")
+  .action(async (projectName) => {
+    await scaffoldCommand(projectName);
+  });
 
-  // Subcommand handling
-  const subcommand = args[0];
-  const projectNameArg = args[1];
-
-  if (!subcommand) {
-    console.log(color.red("No command provided."));
-    console.log("Available commands: init");
-    console.log("Run `npx trezo --help` for usage info.");
-    process.exit(1);
-  }
-
-  switch (subcommand) {
-    case "init":
-      await scaffoldCommand(projectNameArg);
-      break;
-    default:
-      console.log(color.red(`Unknown command: ${subcommand}`));
-      console.log("Available commands: init");
-      process.exit(1);
-  }
-}
-
-main().catch((err) => {
-  console.error(err);
+// -------------------------
+// Unknown command handling
+// -------------------------
+program.on("command:*", () => {
+  console.log(chalk.red("Unknown command."));
+  console.log("Run `trezo --help` for usage.");
   process.exit(1);
 });
+
+// -------------------------
+// Global exit handling
+// -------------------------
+process.on("SIGINT", () => {
+  console.log("\n" + chalk.red("✖ Operation cancelled"));
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  console.log("\n" + chalk.red("✖ Process terminated"));
+  process.exit(0);
+});
+
+// -------------------------
+program.parse(process.argv);

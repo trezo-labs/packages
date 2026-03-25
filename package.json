@@ -8,7 +8,8 @@
     "build": "pnpm -r build",
     "link": "pnpm install",
     "typecheck": "pnpm -r typecheck",
-    "install::all": "pnpm -r install"
+    "install::all": "pnpm -r install",
+    "dev": "pnpm --filter trezo dev"
   },
   "pnpm": {
     "peerDependencyRules": {
