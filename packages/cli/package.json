@@ -1,7 +1,7 @@
 {
   "name": "trezo",
-  "description": "Trezo is not a blockchain SDK. It is an architecture for building Web3 applications.",
-  "version": "1.0.1",
+  "description": "The entry point for creating and configuring Trezo applications.",
+  "version": "1.0.3",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/cli.js",

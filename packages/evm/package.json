@@ -1,7 +1,7 @@
 {
   "name": "@trezo/evm",
-  "description": "A high-performance, type-safe EVM state orchestration layer for modern Web3 applications.",
-  "version": "0.1.2",
+  "description": "A type-safe toolkit for interacting with EVM smart contracts and wallets in modern frontend applications.",
+  "version": "1.0.1",
   "keywords": [
     "trezo",
     "web3",
@@ -32,6 +32,14 @@
     "genokit": "tsx scripts/genokit.ts",
     "typecheck": "tsc --noEmit",
     "publish-package": "npm version patch --no-git-tag-version && npm publish --access public"
+  },
+  "homepage": "https://trezosite.vercel.app/docs/packages/evm",
+  "bugs": {
+    "url": "https://github.com/trezo-labs/packages/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trezo-labs/packages.git"
   },
   "files": [
     "dist/**/*.js",
