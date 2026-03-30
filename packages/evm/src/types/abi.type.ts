@@ -1,5 +1,6 @@
 import type {
   Abi,
+  Address,
   ExtractAbiFunctionNames,
   ExtractAbiEventNames,
   AbiParametersToPrimitiveTypes,
@@ -10,6 +11,7 @@ import type {
 
 export type {
   Abi,
+  Address,
   ExtractAbiFunctionNames,
   ExtractAbiEventNames,
   AbiParametersToPrimitiveTypes,
