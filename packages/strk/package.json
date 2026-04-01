@@ -1,7 +1,7 @@
 {
   "name": "@trezo/strk",
-  "description": "A type-safe Starknet toolkit for interacting with smart contracts and wallets in modern frontend apps.",
-  "version": "1.0.0",
+  "description": "A type-safe toolkit for interacting with Starknet smart contracts and wallets.",
+  "version": "1.0.1",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/index.js",
