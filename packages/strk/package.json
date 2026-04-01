@@ -1,0 +1,78 @@
+{
+  "name": "@trezo/strk",
+  "description": "A type-safe Starknet toolkit for interacting with smart contracts and wallets in modern frontend apps.",
+  "version": "1.0.0",
+  "author": "thelastofinusa",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "keywords": [
+    "starknet",
+    "starknet js",
+    "cairo",
+    "web3 sdk",
+    "blockchain sdk",
+    "dapp development",
+    "typescript sdk",
+    "smart contract sdk",
+    "abi typescript",
+    "contract hooks",
+    "react web3",
+    "wallet integration",
+    "starknet-react",
+    "type safe web3",
+    "frontend blockchain",
+    "crypto sdk",
+    "defi development"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./plugins/vite": {
+      "types": "./dist/plugins/vite.d.ts",
+      "import": "./dist/plugins/vite.mjs",
+      "require": "./dist/plugins/vite.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "genomodal": "tsx scripts/genomodal.ts",
+    "publish-package": "npm version patch --no-git-tag-version && npm publish --access public"
+  },
+  "homepage": "https://trezosite.vercel.app/docs/packages/strk",
+  "bugs": {
+    "url": "https://github.com/trezo-labs/packages/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trezo-labs/packages.git"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.mjs",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.mts",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {
+    "@starknet-react/chains": "^5.0.3",
+    "@starknet-react/core": "^5.0.3",
+    "starknet": "^9.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/react": "^19",
+    "react": "^19",
+    "react-dom": "^19",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

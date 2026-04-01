@@ -8,23 +8,6 @@
     "build": "pnpm -r build",
     "link": "pnpm install",
     "typecheck": "pnpm -r typecheck",
-    "install::all": "pnpm -r install",
-    "dev": "pnpm --filter trezo dev"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "react",
-        "react-dom",
-        "zod",
-        "utf-8-validate",
-        "bufferutil",
-        "react-is"
-      ],
-      "allowedVersions": {
-        "react": "19",
-        "react-dom": "19"
-      }
-    }
+    "install::all": "pnpm -r install"
   }
 }
