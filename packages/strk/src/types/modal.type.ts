@@ -16,7 +16,9 @@
  * ---------------------------------------------------------------------------
  */
 
-import type { StarknetReactConfigType } from "../modalsFrom/starknetReact";
+import type { StarknetkitConfigType } from "../modalsFrom/starknetkit";
 
-export type ModalConfigType =
-  | { from: "starknetReact"; options: StarknetReactConfigType };
+export type ModalConfigType = {
+  from: "starknetkit";
+  options: StarknetkitConfigType;
+};

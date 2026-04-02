@@ -7,7 +7,7 @@ import type {
   StarknetFunctionReturn,
   ExtractStarknetEventNames,
 } from "./types/abi.type";
-import { type CreateConfigType } from "./types/config.type";
+import { StarknetChains, type CreateConfigType } from "./types/config.type";
 import type {
   MutateOptionsType,
   QueryOptionsType,
@@ -73,9 +73,9 @@ export function create<TAbi extends StarknetAbiType>(
     };
 
     switch (modal.from) {
-      case "starknetReact": {
+      case "starknetkit": {
         const { createModalProvider } =
-          await import("./context/providers/starknetReact.provider");
+          await import("./context/providers/starknetkit.provider");
         return createModalProvider(
           modal,
           config.chains,

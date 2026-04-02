@@ -1,0 +1,77 @@
+import { ARGENT_WEBWALLET_URL, CHAIN_ID } from "./constants";
+import {
+  isInArgentMobileAppBrowser,
+  ArgentMobileConnector,
+} from "starknetkit/argentMobile";
+import {
+  isInKeplrMobileAppBrowser,
+  KeplrMobileConnector,
+} from "starknetkit/keplrMobile";
+import {
+  BraavosMobileConnector,
+  isInBraavosMobileAppBrowser,
+} from "starknetkit/braavosMobile";
+import { InjectedConnector } from "starknetkit/injected";
+import { WebWalletConnector } from "starknetkit/webwallet";
+import { ControllerConnector } from "starknetkit/controller";
+import { getStarknet } from "@starknet-io/get-starknet-core";
+
+const isMobileDevice = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  getStarknet();
+  // Primary method: User Agent + Touch support check
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobileUA =
+    /android|webos|iphone|ipad|ipod|blackberry|windows phone/.test(userAgent);
+  const hasTouchSupport =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+  // Backup method: Screen size
+  const isSmallScreen = window.innerWidth <= 768;
+
+  // Combine checks: Must match user agent AND (touch support OR small screen)
+  return isMobileUA && (hasTouchSupport || isSmallScreen);
+};
+
+export const availableConnectors = () => {
+  if (isInArgentMobileAppBrowser()) {
+    return [
+      ArgentMobileConnector.init({
+        options: {
+          url: typeof window !== "undefined" ? window.location.href : "",
+          dappName: "Example dapp",
+          chainId: CHAIN_ID,
+        },
+      }),
+    ];
+  }
+
+  if (isInKeplrMobileAppBrowser()) {
+    return [KeplrMobileConnector.init()];
+  }
+
+  if (isInBraavosMobileAppBrowser()) {
+    return [BraavosMobileConnector.init({})];
+  }
+
+  return [
+    new InjectedConnector({ options: { id: "argentX" } }),
+    new InjectedConnector({ options: { id: "braavos" } }),
+    new InjectedConnector({ options: { id: "metamask" } }),
+    new InjectedConnector({ options: { id: "xverse" } }),
+    new ControllerConnector(),
+    ArgentMobileConnector.init({
+      options: {
+        url: typeof window !== "undefined" ? window.location.href : "",
+        dappName: "Example dapp",
+        chainId: CHAIN_ID,
+      },
+    }),
+    isMobileDevice() ? BraavosMobileConnector.init({}) : null,
+    new WebWalletConnector({ url: ARGENT_WEBWALLET_URL, theme: "dark" }),
+  ].filter((connector) => connector !== null);
+};
+
+export const connectors = availableConnectors();

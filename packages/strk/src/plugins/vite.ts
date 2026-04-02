@@ -1,4 +1,4 @@
-export function trezoStrkVitePlugin() {
+export function trezoVitePlugin() {
   return {
     name: "trezo-strk",
     config(config: any) {
@@ -9,10 +9,14 @@ export function trezoStrkVitePlugin() {
         "react-dom",
         "react/jsx-runtime",
         "starknet",
+        "starknetkit",
         "@starknet-react/core",
         "@starknet-react/chains",
+        "@starknet-io/get-starknet-core",
       ];
       return config;
     },
   };
 }
+
+export default trezoVitePlugin;

@@ -192,6 +192,9 @@ export function createStore<TAbi extends StarknetAbiType>(
       {
         eventName: string;
         listener: (event: { data: unknown; keys: string[] }) => void;
+        fromBlock?: number;
+        toBlock?: number;
+        pollInterval?: number;
       }
     >,
   ): (() => void) => {
@@ -201,14 +204,13 @@ export function createStore<TAbi extends StarknetAbiType>(
 
     for (const entry of entries) {
       let intervalId: ReturnType<typeof setInterval> | undefined;
-      let lastBlock = 0;
+      let lastProcessedBlock = entry.fromBlock ?? 0;
 
       const poll = async () => {
         try {
-          const block = await provider.getBlockNumber();
-          if (block <= lastBlock) return;
+          const currentBlock = await provider.getBlockNumber();
+          if (currentBlock <= lastProcessedBlock) return;
 
-          // Build event filter key from event name
           const eventKey = hash.getSelectorFromName(
             entry.eventName.split("::").pop() ?? entry.eventName,
           );
@@ -216,12 +218,12 @@ export function createStore<TAbi extends StarknetAbiType>(
           const events = await provider.getEvents({
             address: config.address,
             keys: [[eventKey]],
-            from_block: { block_number: Math.max(0, lastBlock) },
-            to_block: { block_number: block },
-            chunk_size: 10,
+            from_block: { block_number: Math.max(0, lastProcessedBlock) },
+            to_block: { block_number: currentBlock },
+            chunk_size: 100,
           });
 
-          lastBlock = block;
+          lastProcessedBlock = currentBlock;
 
           for (const event of events.events) {
             entry.listener({
@@ -229,33 +231,21 @@ export function createStore<TAbi extends StarknetAbiType>(
               keys: event.keys,
             });
           }
-        } catch {
-          // silently ignore polling errors
+        } catch (error) {
+          console.warn(`Event polling error for ${entry.eventName}:`, error);
         }
       };
 
-      // Try WebSocket first (RpcProvider supports it if nodeUrl is wss://)
-      const rpcUrl = resolveRpcUrl();
-      const isWebSocket = rpcUrl?.startsWith("wss://");
-
-      if (isWebSocket) {
-        // Poll every 2 seconds for WebSocket connections too
-        // since starknet.js subscription API varies by provider
-        provider.getBlockNumber().then((b) => {
-          lastBlock = b;
-        });
-        intervalId = setInterval(poll, 2000);
-      } else {
-        // HTTP polling fallback — every 5 seconds
-        provider.getBlockNumber().then((b) => {
-          lastBlock = b;
-        });
-        intervalId = setInterval(poll, 5000);
-      }
-
-      cleanups.push(() => {
-        if (intervalId !== undefined) clearInterval(intervalId);
+      // Initial block fetch
+      provider.getBlockNumber().then((b) => {
+        lastProcessedBlock = entry.fromBlock ?? b;
       });
+
+      const interval =
+        entry.pollInterval ??
+        (resolveRpcUrl()?.startsWith("wss://") ? 2000 : 5000);
+      intervalId = setInterval(poll, interval);
+      cleanups.push(() => clearInterval(intervalId));
     }
 
     return () => cleanups.forEach((fn) => fn());
