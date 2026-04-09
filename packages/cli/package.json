@@ -1,7 +1,7 @@
 {
   "name": "trezo",
   "description": "The entry point for creating and configuring Trezo applications.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/cli.js",

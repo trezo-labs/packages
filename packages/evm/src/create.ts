@@ -1,7 +1,9 @@
+"use client";
 import { AbiType } from "./core/types";
 import { CreateConfigType } from "./core/config";
 import { createStore } from "./store/store";
 import { KitBridgeProps } from "./context/KitBridge";
+import { useSyncExternalStore } from "react";
 
 type ModalInstance = {
   Provider: import("react").FC<{ children: import("react").ReactNode }>;
@@ -48,7 +50,7 @@ type ModalInstance = {
  * const { data } = await call.queryFn("getTask", [BigInt(1)]);
  */
 export function create<TAbi extends AbiType>(config: CreateConfigType<TAbi>) {
-  const store = createStore(config);
+  const store = createStore<TAbi>(config);
 
   const bridgeProps: KitBridgeProps = {
     onConnect: store.onConnect,
@@ -83,10 +85,26 @@ export function create<TAbi extends AbiType>(config: CreateConfigType<TAbi>) {
     }
   })();
 
+  // ✅ useConfig lives here — TAbi is fully known at this scope
+  function useConfig() {
+    const state = useSyncExternalStore(
+      store.subscribe,
+      store.getState,
+      store.getState,
+    );
+
+    return {
+      call: store.call,
+      wallet: { account: state.wallet },
+      web3Provider: state.provider,
+    };
+  }
+
   return {
     _store: store,
     _raw: config,
     _modalPromise: modalPromise,
+    useConfig,
   };
 }
 
