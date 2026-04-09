@@ -5,6 +5,6 @@ export type ReownConfigType = {
   metadata: Metadata;
   ssr?: boolean;
   features?: {
-    analytics?: boolean; // Optional - defaults to your Cloud configuration
+    analytics?: boolean;
   };
 };

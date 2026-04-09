@@ -1,7 +1,7 @@
 {
   "name": "@trezo/evm",
   "description": "A type-safe toolkit for interacting with EVM smart contracts and wallets in modern frontend applications.",
-  "version": "1.5.17",
+  "version": "1.6.0",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -14,14 +14,16 @@
     "ethereum",
     "blockchain",
     "dapp",
-    "state-management",
-    "ethers",
     "wagmi",
     "viem",
+    "ethers",
     "connectkit",
     "reown",
     "appkit",
     "react",
+    "vue",
+    "svelte",
+    "angular",
     "nextjs",
     "type-safe",
     "abi"
@@ -32,6 +34,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
     "./plugins/vite": {
       "types": "./dist/plugins/vite.d.ts",
       "import": "./dist/plugins/vite.mjs",
@@ -39,11 +46,12 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "build": "tsup",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "genomodal": "tsx scripts/genomodal.ts",
-    "publish-package": "npm version patch --no-git-tag-version && npm publish --access public"
+    "publish:default": "npm publish --access public",
+    "publish:increment": "npm version patch --no-git-tag-version && npm publish --access public"
   },
   "homepage": "https://trezosite.vercel.app/docs/packages/evm",
   "bugs": {
@@ -75,14 +83,34 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "vue": ">=3",
+    "svelte": ">=4",
+    "@angular/core": ">=16",
+    "@angular/common": ">=16",
+    "rxjs": ">=7"
   },
-  "pnpm": {
-    "overrides": {
-      "utf-8-validate": "^5.0.2",
-      "zod": "^3.22.0",
-      "@wagmi/connectors": "^5.11.2",
-      "@wagmi/core": "^2.22.1"
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    },
+    "@angular/common": {
+      "optional": true
+    },
+    "rxjs": {
+      "optional": true
     }
   },
   "devDependencies": {

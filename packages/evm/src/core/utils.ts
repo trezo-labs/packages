@@ -1,7 +1,11 @@
 import { http, webSocket, fallback, Transport } from "wagmi";
-import { AbiType, CreateConfigType } from "../types/config.type";
-import { MutateOptionsType, QueryOptionsType } from "../types/functions.type";
 import { ethers } from "ethers";
+import { AbiType, CreateConfigType } from "./config";
+import { QueryOptionsType, MutateOptionsType } from "./config";
+
+/* ------------------------------------------------------------------ */
+/* Transport                                                            */
+/* ------------------------------------------------------------------ */
 
 export function resolveTransport(
   chain: CreateConfigType<AbiType>["chains"][number],
@@ -18,30 +22,17 @@ export function resolveTransport(
   return http(httpUrl);
 }
 
-/**
- * Throws an Error with a specified message.
- *
- * This utility can be used to enforce required parameters or invalid states.
- *
- * @param message - Optional custom error message. Defaults to `"An unexpected error occurred"`.
- *
- * @throws Always throws an `Error` with the provided message.
- *
- * @example
- * throwError("Invalid contract address");
- * // Throws Error: "Invalid contract address"
- *
- * @example
- * throwError();
- * // Throws Error: "An unexpected error occurred"
- */
-export function throwError(message?: string): string {
+/* ------------------------------------------------------------------ */
+/* Error helpers                                                        */
+/* ------------------------------------------------------------------ */
+
+export function throwError(message?: string): never {
   throw new Error(message ?? "An unexpected error occurred");
 }
 
 export function extractErrorMessage(error: unknown): {
-  message: string; // human readable
-  raw: unknown; // full original error object
+  message: string;
+  raw: unknown;
 } {
   const errMsg = error instanceof Error ? error.message : "Unknown error";
   if (!error || !(error instanceof Error)) {
@@ -58,7 +49,7 @@ export function extractErrorMessage(error: unknown): {
     return { message: err.reason, raw: error };
   }
 
-  // Nested provider message
+  // Nested provider messages
   const candidates = [
     err?.data?.message,
     err?.error?.data?.message,
@@ -90,6 +81,10 @@ export function extractErrorMessage(error: unknown): {
   return { message: errMsg, raw: error };
 }
 
+/* ------------------------------------------------------------------ */
+/* Call overrides                                                       */
+/* ------------------------------------------------------------------ */
+
 export function buildOverrides(
   options?: QueryOptionsType | MutateOptionsType,
   fallbackFrom?: string,
@@ -97,24 +92,28 @@ export function buildOverrides(
   const overrides: Record<string, unknown> = {};
   const from = (options as any)?.from ?? fallbackFrom;
 
-  if (from) overrides.from = from;
-  if (options?.value) overrides.value = options.value;
-  if (options?.gasLimit) overrides.gasLimit = options.gasLimit;
+  if (from) overrides["from"] = from;
+  if (options?.value) overrides["value"] = options.value;
+  if (options?.gasLimit) overrides["gasLimit"] = options.gasLimit;
   if ((options as QueryOptionsType)?.blockTag)
-    overrides.blockTag = (options as QueryOptionsType).blockTag;
+    overrides["blockTag"] = (options as QueryOptionsType).blockTag;
   if ((options as MutateOptionsType)?.nonce)
-    overrides.nonce = (options as MutateOptionsType).nonce;
+    overrides["nonce"] = (options as MutateOptionsType).nonce;
   if ((options as MutateOptionsType)?.gasPrice)
-    overrides.gasPrice = (options as MutateOptionsType).gasPrice;
+    overrides["gasPrice"] = (options as MutateOptionsType).gasPrice;
   if ((options as MutateOptionsType)?.maxFeePerGas)
-    overrides.maxFeePerGas = (options as MutateOptionsType).maxFeePerGas;
+    overrides["maxFeePerGas"] = (options as MutateOptionsType).maxFeePerGas;
   if ((options as MutateOptionsType)?.maxPriorityFeePerGas)
-    overrides.maxPriorityFeePerGas = (
+    overrides["maxPriorityFeePerGas"] = (
       options as MutateOptionsType
     ).maxPriorityFeePerGas;
 
   return overrides;
 }
+
+/* ------------------------------------------------------------------ */
+/* Result unwrapping                                                    */
+/* ------------------------------------------------------------------ */
 
 export function unwrapResult(result: any, abiOutputs?: any[]): any {
   if (!Array.isArray(result)) return result;

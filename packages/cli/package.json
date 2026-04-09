@@ -1,7 +1,7 @@
 {
   "name": "trezo",
   "description": "The entry point for creating and configuring Trezo applications.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/cli.js",
@@ -15,7 +15,8 @@
     "dev": "tsx src/cli.ts init",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
-    "publish-package": "npm version patch --no-git-tag-version && npm publish"
+    "publish:default": "npm publish",
+    "publish:increment": "npm version patch --no-git-tag-version && npm publish"
   },
   "homepage": "https://trezosite.vercel.app/docs/cli",
   "bugs": {

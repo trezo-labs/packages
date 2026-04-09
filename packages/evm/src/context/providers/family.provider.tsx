@@ -1,36 +1,40 @@
-import { Chains } from "@/src/types/config.type";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ModalConfigType } from "@/src/types/modal.type";
+import { ModalConfigType } from "@/src/modals";
 import { KitBridge, KitBridgeProps } from "../KitBridge";
-import { ModalInstance } from "@/src/create";
 import { createConfig, Transport, WagmiProvider } from "wagmi";
-import { resolveTransport } from "@/src/lib/utils";
+import { resolveTransport } from "@/core/utils";
 import {
   ConnectKitButton,
   ConnectKitProvider,
   getDefaultConfig,
 } from "connectkit";
-import { useMemo, useState } from "react";
-import { CommonButtonRenderProps } from "@/src/types/button.type";
+import { useState } from "react";
+import type { CommonButtonRenderProps } from "@/adapters/react/button.type";
+import type { Chains } from "@/core/config";
 
-type ButtonRenderProps = CommonButtonRenderProps & {
-  isConnecting: boolean;
-  ensName?: string | null;
-};
-
-export type ButtonProps = {
+export type FamilyButtonProps = {
   label?: string;
   showBalance?: boolean;
   showAvatar?: boolean;
-  children?: (props: ButtonRenderProps) => React.ReactNode;
+  children?: (
+    props: CommonButtonRenderProps & {
+      isConnecting: boolean;
+      ensName?: string | null;
+    },
+  ) => React.ReactNode;
 };
 
-export function createModalProvider(
+export type ModalInstance<TButtonProps = unknown> = {
+  Provider: React.FC<{ children: React.ReactNode }>;
+  ConnectButton: React.FC<TButtonProps>;
+};
+
+export function createFamilyProvider(
   modalConfig: Extract<ModalConfigType, { from: "family" }>,
   chains: [Chains.Chain, ...Chains.Chain[]],
   rpcUrls?: Record<number, string>,
   bridgeProps?: KitBridgeProps,
-): ModalInstance<ButtonProps> {
+): ModalInstance<FamilyButtonProps> {
   const transports: Record<number, Transport> = chains.reduce(
     (acc, chain) => {
       acc[chain.id] = resolveTransport(chain, rpcUrls);
@@ -64,7 +68,7 @@ export function createModalProvider(
     );
   };
 
-  const ConnectButton: React.FC<ButtonProps> = (props) => {
+  const ConnectButton: React.FC<FamilyButtonProps> = (props) => {
     if (!props.children) return <ConnectKitButton {...props} />;
 
     return (

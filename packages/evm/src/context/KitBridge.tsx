@@ -12,13 +12,11 @@ export type KitBridgeProps = {
 /**
  * KitBridge
  * ---------------------------------------------------------
- * Mounted inside the kit provider tree. Listens to wagmi's
- * account/walletClient state and pushes it into the trezo
- * store so queryFn / mutateFn work without any changes.
- *
- * This is a renderless component — returns null always.
+ * Renderless component mounted inside the wallet kit tree.
+ * Listens to wagmi's account/walletClient state and pushes
+ * it into the trezo store so queryFn / mutateFn work without
+ * any extra setup.
  */
-
 export function KitBridge({ onConnect, onDisconnect }: KitBridgeProps) {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();

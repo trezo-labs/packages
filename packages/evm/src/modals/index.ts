@@ -8,17 +8,17 @@
  *
  * Any manual changes will be overwritten.
  *
- * To update modalsFrom:
- *   1. Add/remove files in src/modalsFrom/
+ * To update modals:
+ *   1. Add/remove files in src/modals/
  *   2. Run:
  *        pnpm tsx scripts/genomodal.ts
  *
  * ---------------------------------------------------------------------------
  */
 
-import type { FamilyConfigType } from "../modalsFrom/family";
-import type { ReownConfigType } from "../modalsFrom/reown";
+import type { FamilyConfigType } from "./from/family";
+import type { ReownConfigType } from "./from/reown";
 
-export type ModalConfigType =
-  | { from: "family"; options: FamilyConfigType }
-  | { from: "reown"; options: ReownConfigType };
+export type WalletConfigType =
+  | { from: "family"; options: FamilyConfigType } |
+  { from: "reown"; options: ReownConfigType };

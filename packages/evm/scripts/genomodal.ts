@@ -3,27 +3,32 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 /* ---------------------------------- */
-/* Resolve Paths */
+/* Resolve Paths                       */
 /* ---------------------------------- */
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const modalsDir = path.resolve(__dirname, "../src/modalsFrom");
-const typesFile = path.resolve(__dirname, "../src/types/modal.type.ts");
+const modalsDir = path.resolve(__dirname, "../src/modals/from");
+const typesFile = path.resolve(__dirname, "../src/modals/index.ts");
 
 /* ---------------------------------- */
-/* Read Kit Files */
+/* Read Modal Files                    */
 /* ---------------------------------- */
 
 const modalFiles = fs.readdirSync(modalsDir);
 
 const modalNames = modalFiles
-  .filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
+  .filter(
+    (file) =>
+      file.endsWith(".ts") &&
+      !file.endsWith(".d.ts") &&
+      !file.endsWith(".type.ts"),
+  )
   .map((file) => path.basename(file, ".ts"));
 
 /* ---------------------------------- */
-/* Warning Header */
+/* Warning Header                      */
 /* ---------------------------------- */
 
 const warningMessage = `/**
@@ -36,8 +41,8 @@ const warningMessage = `/**
  *
  * Any manual changes will be overwritten.
  *
- * To update modalsFrom:
- *   1. Add/remove files in src/modalsFrom/
+ * To update modals:
+ *   1. Add/remove files in src/modals/
  *   2. Run:
  *        pnpm tsx scripts/genomodal.ts
  *
@@ -45,18 +50,18 @@ const warningMessage = `/**
  */`;
 
 /* ---------------------------------- */
-/* Imports */
+/* Imports                             */
 /* ---------------------------------- */
 
 const imports = modalNames
   .map(
     (name) =>
-      `import type { ${capitalize(name)}ConfigType } from "../modalsFrom/${name}";`,
+      `import type { ${capitalize(name)}ConfigType } from "./from/${name}";`,
   )
   .join("\n");
 
 /* ---------------------------------- */
-/* Union Type */
+/* Union Type                          */
 /* ---------------------------------- */
 
 const unionType =
@@ -70,19 +75,19 @@ const unionType =
     : "never";
 
 /* ---------------------------------- */
-/* Final Content */
+/* Final Content                       */
 /* ---------------------------------- */
 
 const content = `${warningMessage}
 
 ${imports}
 
-export type ModalConfigType =
+export type WalletConfigType =
   | ${unionType};
 `;
 
 /* ---------------------------------- */
-/* Write File */
+/* Write File                          */
 /* ---------------------------------- */
 
 fs.writeFileSync(typesFile, content, "utf8");
@@ -94,7 +99,7 @@ console.log(
 );
 
 /* ---------------------------------- */
-/* Utils */
+/* Utils                               */
 /* ---------------------------------- */
 
 function capitalize(str: string): string {

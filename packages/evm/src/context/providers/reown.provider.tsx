@@ -4,35 +4,39 @@ import { useAccount } from "wagmi";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ModalInstance } from "@/src/create";
-import { Chains } from "@/src/types/config.type";
-import { ModalConfigType } from "@/src/types/modal.type";
+import type { ModalConfigType } from "@/src/modals";
 import { KitBridge, KitBridgeProps } from "../KitBridge";
-import { CommonButtonRenderProps } from "@/src/types/button.type";
+import type { CommonButtonRenderProps } from "@/adapters/react/button.type";
+import type { Chains } from "@/core/config";
 
 let appKitInitialized = false;
 let wagmiAdapterInstance: WagmiAdapter | null = null;
 
-type ButtonRenderProps = CommonButtonRenderProps & {
-  isConnecting: boolean;
-  caipAddress?: string;
-  status?: "connected" | "disconnected" | "connecting" | "reconnecting";
-};
-
-export type ButtonProps = {
+export type ReownButtonProps = {
   label?: string;
   balance?: "show" | "hide";
   disabled?: boolean;
   size?: "md" | "sm";
   namespace?: "eip155" | "solana" | "bip122";
-  children?: (props: ButtonRenderProps) => React.ReactNode;
+  children?: (
+    props: CommonButtonRenderProps & {
+      isConnecting: boolean;
+      caipAddress?: string;
+      status?: "connected" | "disconnected" | "connecting" | "reconnecting";
+    },
+  ) => React.ReactNode;
 };
 
-export function createModalProvider(
+export type ModalInstance<TButtonProps = unknown> = {
+  Provider: React.FC<{ children: React.ReactNode }>;
+  ConnectButton: React.FC<TButtonProps>;
+};
+
+export function createReownProvider(
   modalConfig: Extract<ModalConfigType, { from: "reown" }>,
   chains: [Chains.Chain, ...Chains.Chain[]],
   bridgeProps?: KitBridgeProps,
-): ModalInstance<ButtonProps> {
+): ModalInstance<ReownButtonProps> {
   if (!wagmiAdapterInstance) {
     wagmiAdapterInstance = new WagmiAdapter({
       networks: chains,
@@ -64,7 +68,10 @@ export function createModalProvider(
     </WagmiProvider>
   );
 
-  const ConnectButton: React.FC<ButtonProps> = ({ children, ...props }) => {
+  const ConnectButton: React.FC<ReownButtonProps> = ({
+    children,
+    ...props
+  }) => {
     const { open: reownOpen, close } = useAppKit();
     const { address, isConnected, isConnecting, chainId } = useAccount();
 
@@ -77,7 +84,7 @@ export function createModalProvider(
         try {
           await reownOpen(options);
         } catch (e) {
-          console.error("AppKit open error:", e);
+          console.error("[trezo/evm] AppKit open error:", e);
         }
       },
       [reownOpen],

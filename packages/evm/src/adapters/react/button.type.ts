@@ -1,5 +1,4 @@
 export type CommonButtonRenderProps = {
-  // Common across all providers
   isConnected: boolean;
   isConnecting?: boolean;
   address?: string;

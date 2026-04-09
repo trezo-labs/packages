@@ -1,20 +1,24 @@
 import { ethers } from "ethers";
 import { Address } from "abitype";
-import { AbiType } from "../types/config.type";
+import { AbiType } from "./types";
+
+export type WalletState = {
+  isConnected: boolean;
+  isConnecting: boolean;
+  address?: Address;
+  chainId?: number;
+  error?: Error;
+};
+
+export type ProviderState = {
+  isAvailable: boolean;
+  error?: Error;
+};
 
 export type StoreType<TAbi extends AbiType> = {
-  wallet: {
-    isConnected: boolean;
-    isConnecting: boolean;
-    address?: Address;
-    chainId?: number;
-    error?: Error;
-  };
-  provider: {
-    isAvailable: boolean;
-    error?: Error;
-  };
-  // internal (not exposed to avoid re-renders)
+  wallet: WalletState;
+  provider: ProviderState;
+  // internal — not exposed to avoid re-renders
   _signer?: ethers.Signer;
   _provider?: ethers.Provider;
   _contract?: ethers.Contract;
