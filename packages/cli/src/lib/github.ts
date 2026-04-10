@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import degit from "degit";
-import { spawn } from "node:child_process";
+import { ChildProcess, spawn } from "node:child_process";
 
 export function isGitHubRepo(pathValue: string): boolean {
   return pathValue.startsWith("https://github.com/");
@@ -23,7 +23,6 @@ export async function copyLocalTemplate(
 export async function cloneGitHubTemplate(repoUrl: string, targetDir: string) {
   let degitPath = repoUrl;
 
-  // Handle /tree/ URLs
   if (repoUrl.includes("/tree/")) {
     const parsed = parseGitHubTreeUrl(repoUrl);
 
@@ -40,7 +39,20 @@ export async function cloneGitHubTemplate(repoUrl: string, targetDir: string) {
     verbose: false,
   });
 
-  await emitter.clone(targetDir);
+  try {
+    await emitter.clone(targetDir);
+  } catch (err) {
+    // cleanup partial folder
+    if (fs.existsSync(targetDir)) {
+      fs.rmSync(targetDir, { recursive: true, force: true });
+    }
+
+    throw new Error(
+      err instanceof Error
+        ? `Failed to clone template: ${err.message}`
+        : "Failed to clone template",
+    );
+  }
 }
 
 export function parseGitHubTreeUrl(url: string) {
@@ -58,18 +70,44 @@ export function parseGitHubTreeUrl(url: string) {
 }
 
 export async function runPostCommands(commands: string[], projectDir: string) {
-  for (const cmd of commands) {
-    await new Promise<void>((resolve, reject) => {
-      const child = spawn(cmd, {
-        cwd: projectDir,
-        stdio: "inherit",
-        shell: true,
-      });
+  let activeProcess: ChildProcess | null = null;
 
-      child.on("close", (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`Command failed: ${cmd}`));
+  const killActive = () => {
+    if (activeProcess && !activeProcess.killed) {
+      activeProcess.kill("SIGTERM");
+      activeProcess = null;
+    }
+  };
+
+  process.on("SIGINT", () => {
+    killActive();
+    console.log("\n✖ Post-setup cancelled");
+    process.exit(0);
+  });
+
+  try {
+    for (const cmd of commands) {
+      await new Promise<void>((resolve, reject) => {
+        activeProcess = spawn(cmd, {
+          cwd: projectDir,
+          stdio: "inherit",
+          shell: true,
+        });
+
+        activeProcess.on("close", (code) => {
+          activeProcess = null;
+
+          if (code === 0) resolve();
+          else reject(new Error(`Command failed: ${cmd}`));
+        });
+
+        activeProcess.on("error", (err) => {
+          activeProcess = null;
+          reject(err);
+        });
       });
-    });
+    }
+  } finally {
+    killActive();
   }
 }

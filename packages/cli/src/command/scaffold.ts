@@ -1,8 +1,7 @@
-import ora from "ora";
 import fs from "node:fs";
-import chalk from "chalk";
 import path from "node:path";
-import inquirer from "inquirer";
+import chalk from "chalk";
+import { select, text, confirm, isCancel, spinner, note } from "@clack/prompts";
 
 import {
   cloneGitHubTemplate,
@@ -10,180 +9,163 @@ import {
   isGitHubRepo,
   runPostCommands,
 } from "../lib/github";
-import { version } from "@/package.json";
 import { queryPresets } from "./presets";
-import { safePrompt } from "../lib/utils";
 import { PackageType } from "../lib/schema";
 import {
   CHOICES_API_URL,
-  CLI_BANNER,
   PROJECT_NAME,
   PROJECT_NAME_RENAME,
 } from "../lib/constants";
 
-const sleep = (ms = 1200) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms = 400) => new Promise((r) => setTimeout(r, ms));
+
+function handleCancel(message = "Operation cancelled") {
+  console.log(chalk.red(`\n✖ ${message}`));
+  process.exit(0);
+}
 
 export async function scaffoldCommand(projectNameArg?: string) {
   let presetsArray: Array<PackageType> = [];
 
-  // -------------------------
-  // Intro
-  // -------------------------
-  console.log(chalk.cyan(CLI_BANNER));
-
-  const spinner = ora();
+  const s = spinner();
 
   try {
     // -------------------------
-    // Fetch Templates
+    // Resolve Templates
     // -------------------------
-    spinner.start("Loading templates... this may take a moment");
+    s.start("Resolving templates");
 
     presetsArray = await queryPresets(CHOICES_API_URL);
 
     if (!presetsArray.length) {
-      console.log();
-      spinner.fail("No templates available");
-      console.log();
+      s.stop("No templates found");
       process.exit(0);
     }
 
-    spinner.succeed(chalk.bold(`Welcome to Trezo CLI v${version}\n`));
+    s.stop("Templates resolved");
 
     // -------------------------
     // Package Selection
     // -------------------------
-    const { packageValue } = await safePrompt(() =>
-      inquirer.prompt({
-        name: "packageValue",
-        type: "select",
-        message: "What package would you like to use?",
-        choices: presetsArray.map((p) => ({
-          name: p.label,
-          value: p.value,
-        })),
-      }),
-    );
+    const packageValue = await select({
+      message: "Select a package:",
+      options: presetsArray.map((p) => ({
+        value: p.value,
+        label: p.label,
+      })),
+    });
+
+    if (isCancel(packageValue)) {
+      handleCancel();
+    }
 
     const selectedPackage = presetsArray.find((p) => p.value === packageValue);
 
     if (!selectedPackage) {
-      console.log();
-      spinner.fail("Invalid package selected");
-      console.log();
+      console.log(chalk.red("\nInvalid package selection"));
       process.exit(1);
     }
 
     if (!selectedPackage.templates.length) {
-      console.log();
-      spinner.fail(`No templates available for "${selectedPackage.label}".`);
-      console.log();
+      console.log(
+        chalk.red(`\nNo templates found for "${selectedPackage.label}"`),
+      );
       process.exit(0);
     }
 
     // -------------------------
-    // Template Selection
+    // Framework Selection
     // -------------------------
-    const { templateValue } = await safePrompt(() =>
-      inquirer.prompt({
-        name: "templateValue",
-        type: "select",
-        message: "Choose a template to start with:",
-        choices: selectedPackage.templates.map((t) => ({
-          name: t.label,
-          value: t.value,
-        })),
-      }),
-    );
+    const frameworkValue = await select({
+      message: "Select a framework:",
+      options: selectedPackage.templates.map((t) => ({
+        value: t.value,
+        label: t.label,
+        hint: t.hint,
+      })),
+    });
+
+    if (isCancel(frameworkValue)) {
+      handleCancel();
+    }
 
     const selectedTemplate = selectedPackage.templates.find(
-      (t) => t.value === templateValue,
+      (t) => t.value === frameworkValue,
     );
 
     if (!selectedTemplate) {
-      console.log();
-      spinner.fail("Invalid template selected");
-      console.log();
+      console.log(chalk.red("\nInvalid template selection"));
       process.exit(1);
     }
 
     // -------------------------
     // Project Name
     // -------------------------
-    const projectName =
-      projectNameArg ||
-      (
-        await safePrompt(() =>
-          inquirer.prompt({
-            name: "projectName",
-            type: "input",
-            message: "What would you like to name your project?",
-            default: PROJECT_NAME,
-          }),
-        )
-      ).projectName;
+    let finalProjectName = projectNameArg as string;
 
-    if (!projectName) {
-      console.log();
-      spinner.fail("Project name is required");
-      console.log();
-      process.exit(1);
+    if (!finalProjectName) {
+      const inputName = await text({
+        message: "Project name:",
+        placeholder: PROJECT_NAME,
+        defaultValue: PROJECT_NAME,
+      });
+
+      if (isCancel(inputName)) {
+        handleCancel();
+      }
+
+      finalProjectName = inputName as string;
     }
 
-    let finalProjectName = projectName;
     let targetDir = path.resolve(process.cwd(), finalProjectName);
 
     // -------------------------
     // Directory Handling
     // -------------------------
     if (fs.existsSync(targetDir)) {
-      const { action } = await safePrompt(() =>
-        inquirer.prompt({
-          name: "action",
-          type: "select",
-          message: `A directory named "${chalk.cyan(finalProjectName)}" already exists. What would you like to do?`,
-          choices: [
-            {
-              name: "Overwrite existing project",
-              value: "overwrite",
-            },
-            { name: "Rename project", value: "rename" },
-            { name: "Cancel operation", value: "cancel" },
-          ],
-        }),
-      );
+      const action = await select({
+        message: `Directory "${chalk.cyan(finalProjectName)}" already exists. Select an action:`,
+        options: [
+          {
+            value: "overwrite",
+            label: "Overwrite",
+            hint: "Deletes existing folder and creates a new project",
+          },
+          {
+            value: "rename",
+            label: "Rename",
+            hint: "Choose a different project name",
+          },
+          {
+            value: "cancel",
+            label: "Cancel",
+            hint: "Exit without making changes",
+          },
+        ],
+      });
+
+      if (isCancel(action)) handleCancel();
 
       if (action === "cancel") {
-        console.log();
-        spinner.fail("Operation cancelled");
-        console.log();
-        process.exit(0);
+        handleCancel("Operation cancelled");
       }
 
       if (action === "rename") {
-        const { newName } = await safePrompt(() =>
-          inquirer.prompt({
-            name: "newName",
-            type: "input",
-            message: "What would you like to rename the project to?",
-            default: PROJECT_NAME_RENAME,
-          }),
-        );
+        const newName = await text({
+          message: "New project name:",
+          placeholder: PROJECT_NAME_RENAME,
+          defaultValue: PROJECT_NAME_RENAME,
+        });
 
-        if (!newName) {
-          console.log();
-          spinner.fail("Operation cancelled");
-          console.log();
-          process.exit(0);
-        }
+        if (isCancel(newName)) handleCancel();
 
-        finalProjectName = newName;
+        finalProjectName = newName as string;
         targetDir = path.resolve(process.cwd(), finalProjectName);
 
         if (fs.existsSync(targetDir)) {
-          console.log();
-          spinner.fail(`Cannot use "${finalProjectName}" as new project name`);
-          console.log();
+          console.log(
+            chalk.red(`\nDirectory "${finalProjectName}" already exists`),
+          );
           process.exit(1);
         }
       }
@@ -196,7 +178,7 @@ export async function scaffoldCommand(projectNameArg?: string) {
     // -------------------------
     // Scaffold Project
     // -------------------------
-    spinner.start(`Creating project in ${chalk.bold(chalk.cyan(targetDir))}`);
+    s.start(`Creating project at ${chalk.cyan(targetDir)}`);
 
     try {
       if (isGitHubRepo(selectedTemplate.path)) {
@@ -205,10 +187,12 @@ export async function scaffoldCommand(projectNameArg?: string) {
         await copyLocalTemplate(selectedTemplate.path, targetDir);
       }
 
-      spinner.succeed("Project created successfully!");
+      s.stop("Project created successfully");
     } catch (err) {
-      spinner.fail(
-        err instanceof Error ? err.message : "Failed to create project",
+      s.stop(
+        chalk.red(
+          err instanceof Error ? err.message : "Project creation failed",
+        ),
       );
       process.exit(1);
     }
@@ -222,66 +206,40 @@ export async function scaffoldCommand(projectNameArg?: string) {
         ...selectedTemplate.postSetupCommands,
       ];
 
-      // -------------------------
-      // Show commands FIRST
-      // -------------------------
-      console.log(
-        chalk.cyan(
-          "\nThe following post-setup commands will complete your project setup:\n",
-        ),
+      note(
+        commands.map((cmd, i) => `${i + 1}. ${cmd}`).join("\n"),
+        "Optional post-setup commands:",
       );
 
-      commands.forEach((cmd, i) => {
-        console.log(chalk.dim(`  ${i + 1}. ${cmd}`));
+      const shouldRun = await confirm({
+        message: "Run post-setup commands?",
       });
 
-      console.log();
-
-      // -------------------------
-      // Ask to run them
-      // -------------------------
-      const { shouldRun } = await safePrompt(() =>
-        inquirer.prompt([
-          {
-            name: "shouldRun",
-            type: "confirm",
-            message: "Would you like to run these post-setup commands now?",
-            default: true,
-          },
-        ]),
-      );
+      if (isCancel(shouldRun)) handleCancel();
 
       if (shouldRun) {
+        s.stop();
+
         try {
           await runPostCommands(selectedTemplate.postSetupCommands, targetDir);
-          spinner.succeed("Post-setup completed successfully.");
+          s.stop("Post-setup completed");
         } catch (err) {
-          spinner.fail(
-            err instanceof Error ? err.message : "Post-setup failed.",
-          );
+          s.stop("Post-setup failed");
           process.exit(1);
         }
-      } else {
-        console.log(
-          chalk.yellow(
-            "\nRun the above commands when you're ready to complete setup.",
-          ),
-        );
       }
     }
-
-    console.log(chalk.green("\n✔ Project setup complete!\n"));
 
     await sleep(400);
   } catch (error) {
     const errMsg =
       error instanceof Error
         ? error.message.toLowerCase().includes("fetch")
-          ? "Network error: unable to fetch templates."
+          ? "Network error: failed to resolve templates"
           : error.message
-        : "Unexpected error occurred.";
+        : "Unexpected error occurred";
 
-    spinner.fail(errMsg);
+    console.log(chalk.red(`\n✖ ${errMsg}`));
     process.exit(1);
   }
 }

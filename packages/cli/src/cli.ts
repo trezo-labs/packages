@@ -2,8 +2,10 @@
 
 import chalk from "chalk";
 import { Command } from "commander";
+import { intro, outro } from "@clack/prompts";
 import { name, version } from "@/package.json";
 import { scaffoldCommand } from "./command/scaffold";
+import { CLI_BANNER } from "./lib/constants";
 
 const program = new Command();
 
@@ -23,7 +25,10 @@ program
   .argument("[project-name]", "Name of your project")
   .description("Initialize a new multi-chain Web3 project")
   .action(async (projectName) => {
+    console.log(chalk.cyan(CLI_BANNER));
+    intro(chalk.cyan(`Welcome to Trezo CLI v${version}`));
     await scaffoldCommand(projectName);
+    outro(chalk.green("✔ You're all set — time to ship 🚀"));
   });
 
 // -------------------------

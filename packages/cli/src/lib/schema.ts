@@ -6,6 +6,7 @@ import { z } from "zod";
 export const templateSchema = z.object({
   value: z.string().min(1, "Template value is required"),
   label: z.string().min(1, "Template label is required"),
+  hint: z.string().optional(),
   path: z
     .url("Path must be a valid URL")
     .refine(

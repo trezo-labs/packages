@@ -1,5 +1,4 @@
 import fs from "fs";
-
 import { ZodError } from "zod";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -13,7 +12,7 @@ const __dirname = dirname(__filename);
 export async function queryPresets(
   source: string | unknown[],
 ): Promise<PackageType[]> {
-  let data: unknown[];
+  let data: any[] = [];
 
   if (Array.isArray(source)) {
     data = source;
@@ -35,12 +34,17 @@ export async function queryPresets(
   }
 
   // Normalize templates
-  const normalized = (data as any[]).map((preset) => ({
+  const normalized = data.map((preset) => ({
     ...preset,
     templates: (preset.templates || []).map((t: any) => {
       const out = { ...t };
 
-      // normalize postSetupCommands
+      // Ensure hint exists (optional)
+      if (!out.hint) {
+        out.hint = undefined;
+      }
+
+      // Normalize postSetupCommands
       if (!out.postSetupCommands) {
         delete out.postSetupCommands;
       } else if (typeof out.postSetupCommands === "string") {
