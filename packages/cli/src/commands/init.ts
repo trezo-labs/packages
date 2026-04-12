@@ -18,8 +18,11 @@ import { CHOICES_API_URL, CLI_BANNER } from "@/lib/constants.js";
 // Main command
 // ------------------------------------------------------------------
 export async function initCommand(
-  projectNameArg?: string,
-  options?: { package?: string; template?: string },
+  name?: string,
+  options?: {
+    package?: string;
+    template?: string;
+  },
 ) {
   // ----- 1. Fetch presets (with spinner) -----
   const spinner = createSpinner();
@@ -52,7 +55,7 @@ export async function initCommand(
   );
 
   // ----- 3. Now handle project directory (no more "Using..." logs after this) -----
-  const finalProjectName = await resolveProjectName(projectNameArg);
+  const finalProjectName = await resolveProjectName(name);
   let targetDir = path.resolve(process.cwd(), finalProjectName);
   targetDir = await handleExistingDirectory(targetDir, finalProjectName);
 

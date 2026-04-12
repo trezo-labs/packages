@@ -10,17 +10,24 @@ import { listCommand } from "./commands/list";
 const cli = cac(name);
 
 cli
-  .command("init [project-name]", "Initialize a new multi-chain Web3 project")
+  .command("init", "Initialize a new multi-chain Web3 project")
+  .option("-n, --name <name>", "Project name")
   .option("-p, --package <name>", "Skip package selection and use this package")
   .option(
     "-t, --template <name>",
     "Skip template selection and use this template",
   )
   .action(
-    async (
-      projectName?: string,
-      options?: { package?: string; template?: string },
-    ) => await initCommand(projectName, options),
+    async (options?: {
+      name?: string;
+      package?: string;
+      template?: string;
+    }) => {
+      await initCommand(options?.name, {
+        package: options?.package,
+        template: options?.template,
+      });
+    },
   );
 
 cli
@@ -37,7 +44,7 @@ cli.command("*").action(() => {
   process.exit(1);
 });
 
-// Graceful shutdown on SIGINT/SIGTERM
+// Graceful shutdown
 process.on("SIGINT", () => {
   consola.warn(color.red("\n✖ Operation cancelled"));
   process.exit(0);
