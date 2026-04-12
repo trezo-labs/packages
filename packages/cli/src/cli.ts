@@ -1,57 +1,51 @@
 #!/usr/bin/env node
 
-import chalk from "chalk";
-import { Command } from "commander";
-import { intro, outro } from "@clack/prompts";
-import { name, version } from "@/package.json";
-import { scaffoldCommand } from "./command/scaffold";
-import { CLI_BANNER } from "./lib/constants";
+import { cac } from "cac";
+import color from "picocolors";
+import { consola } from "consola";
+import { name } from "@/package.json";
+import { initCommand } from "./commands/init";
+import { listCommand } from "./commands/list";
 
-const program = new Command();
+const cli = cac(name);
 
-// -------------------------
-// Global config
-// -------------------------
-program
-  .name(name)
-  .description("Trezo CLI")
-  .version(version, "-v, --version", "Show CLI version");
+cli
+  .command("init [project-name]", "Initialize a new multi-chain Web3 project")
+  .option("-p, --package <name>", "Skip package selection and use this package")
+  .option(
+    "-t, --template <name>",
+    "Skip template selection and use this template",
+  )
+  .action(
+    async (
+      projectName?: string,
+      options?: { package?: string; template?: string },
+    ) => await initCommand(projectName, options),
+  );
 
-// -------------------------
-// init command
-// -------------------------
-program
-  .command("init")
-  .argument("[project-name]", "Name of your project")
-  .description("Initialize a new multi-chain Web3 project")
-  .action(async (projectName) => {
-    console.log(chalk.cyan(CLI_BANNER));
-    intro(chalk.cyan(`Welcome to Trezo CLI v${version}`));
-    await scaffoldCommand(projectName);
-    outro(chalk.green("✔ You're all set — time to ship 🚀"));
-  });
+cli
+  .command("list", "List all available packages and templates")
+  .action(async () => await listCommand());
 
-// -------------------------
-// Unknown command handling
-// -------------------------
-program.on("command:*", () => {
-  console.log(chalk.red("Unknown command."));
-  console.log("Run `trezo --help` for usage.");
+// Global error handling for unknown commands
+cli.command("").action(() => cli.outputHelp());
+
+// Catch-all for unknown commands
+cli.command("*").action(() => {
+  consola.error(color.red("Unknown command."));
+  consola.info("Run `" + color.bold(name + " --help") + "` for usage.");
   process.exit(1);
 });
 
-// -------------------------
-// Global exit handling
-// -------------------------
+// Graceful shutdown on SIGINT/SIGTERM
 process.on("SIGINT", () => {
-  console.log("\n" + chalk.red("✖ Operation cancelled"));
+  consola.warn(color.red("\n✖ Operation cancelled"));
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-  console.log("\n" + chalk.red("✖ Process terminated"));
+  consola.warn(color.red("\n✖ Process terminated"));
   process.exit(0);
 });
 
-// -------------------------
-program.parse(process.argv);
+cli.parse();

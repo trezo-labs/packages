@@ -1,7 +1,6 @@
 export const PROJECT_NAME = "trezo-app";
-export const PROJECT_NAME_RENAME = "trezo-app-renamed";
 
-export const CHOICES_API_URL = "https://trezo-cli.vercel.app/api/presets";
+export const CHOICES_API_URL = "https://trezo-cli.vercel.app/api/packages";
 
 export const CLI_BANNER = `
 ████████╗██████╗ ███████╗███████╗ ██████╗      ██████╗██╗     ██╗

@@ -1,7 +1,7 @@
 {
   "name": "trezo",
   "description": "The entry point for creating and configuring Trezo applications.",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "author": "thelastofinusa",
   "license": "MIT",
   "main": "./dist/cli.js",
@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsup src/cli.ts --format esm",
     "dev": "tsx src/cli.ts init",
+    "dev:list": "tsx src/cli.ts list",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "publish:default": "npm publish",
@@ -36,17 +37,23 @@
   ],
   "devDependencies": {
     "@types/degit": "^2.8.6",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
+    "@types/prompts": "^2.4.9",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
+    "cac": "^7.0.0",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
+    "consola": "^3.4.2",
     "degit": "^2.8.4",
+    "nanospinner": "^1.2.2",
     "ora": "^9.3.0",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2",
     "zod": "^4.3.6"
   },
   "keywords": [

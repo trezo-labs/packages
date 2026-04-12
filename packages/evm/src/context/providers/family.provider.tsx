@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ModalConfigType } from "@/src/modals";
+import type { WalletConfigType } from "@/src/modals";
 import { KitBridge, KitBridgeProps } from "../KitBridge";
 import { createConfig, Transport, WagmiProvider } from "wagmi";
 import { resolveTransport } from "@/core/utils";
@@ -30,7 +30,7 @@ export type ModalInstance<TButtonProps = unknown> = {
 };
 
 export function createFamilyProvider(
-  modalConfig: Extract<ModalConfigType, { from: "family" }>,
+  config: Extract<WalletConfigType, { from: "family" }>,
   chains: [Chains.Chain, ...Chains.Chain[]],
   rpcUrls?: Record<number, string>,
   bridgeProps?: KitBridgeProps,
@@ -47,8 +47,8 @@ export function createFamilyProvider(
     getDefaultConfig({
       chains,
       transports,
-      walletConnectProjectId: modalConfig.options.projectId,
-      appName: modalConfig.options.appInfo.name || "Trezo",
+      walletConnectProjectId: config.options.projectId,
+      appName: config.options.appInfo.name || "Trezo",
       enableAaveAccount: false,
     }),
   );

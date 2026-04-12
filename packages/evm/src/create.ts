@@ -29,7 +29,7 @@ type ModalInstance = {
  *   address: "0x...",
  *   chains: [Chains.mainnet, Chains.optimism],
  *   rpcUrls: { 10: "https://my-rpc.example.com" },
- *   modalConfig: {
+ *   wallet: {
  *     from: "reown",
  *     options: { projectId: "...", metadata: { name: "My App", ... } },
  *   },

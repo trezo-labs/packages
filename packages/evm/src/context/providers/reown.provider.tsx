@@ -4,7 +4,7 @@ import { useAccount } from "wagmi";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ModalConfigType } from "@/src/modals";
+import type { WalletConfigType } from "@/src/modals";
 import { KitBridge, KitBridgeProps } from "../KitBridge";
 import type { CommonButtonRenderProps } from "@/adapters/react/button.type";
 import type { Chains } from "@/core/config";
@@ -33,15 +33,15 @@ export type ModalInstance<TButtonProps = unknown> = {
 };
 
 export function createReownProvider(
-  modalConfig: Extract<ModalConfigType, { from: "reown" }>,
+  config: Extract<WalletConfigType, { from: "reown" }>,
   chains: [Chains.Chain, ...Chains.Chain[]],
   bridgeProps?: KitBridgeProps,
 ): ModalInstance<ReownButtonProps> {
   if (!wagmiAdapterInstance) {
     wagmiAdapterInstance = new WagmiAdapter({
       networks: chains,
-      projectId: modalConfig.options.projectId,
-      ssr: modalConfig.options.ssr,
+      projectId: config.options.projectId,
+      ssr: config.options.ssr,
     });
   }
 
@@ -49,9 +49,9 @@ export function createReownProvider(
     createAppKit({
       adapters: [wagmiAdapterInstance],
       networks: chains,
-      projectId: modalConfig.options.projectId,
-      metadata: modalConfig.options.metadata,
-      features: modalConfig.options.features,
+      projectId: config.options.projectId,
+      metadata: config.options.metadata,
+      features: config.options.features,
     });
     appKitInitialized = true;
   }
