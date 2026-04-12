@@ -3,19 +3,30 @@
 import { cac } from "cac";
 import color from "picocolors";
 import { consola } from "consola";
-import { name } from "@/package.json";
+import { name, version } from "@/package.json";
 import { initCommand } from "./commands/init";
 import { listCommand } from "./commands/list";
+import { checkForUpdates } from "./lib/updates";
+
+// Start update check in the background (non-blocking)
+checkForUpdates();
 
 const cli = cac(name);
 
+// Enable global --help and --version flags
+cli.version(version);
+cli.help();
+
 cli
-  .command("init", "Initialize a new multi-chain Web3 project")
-  .option("-n, --name <name>", "Project name")
-  .option("-p, --package <name>", "Skip package selection and use this package")
+  .command("init", "Initialize a new Trezo project")
+  .option("-n, --name <name>", "Project directory name (prompts if omitted)")
+  .option(
+    "-p, --package <name>",
+    "Skip package selection and use this package ID",
+  )
   .option(
     "-t, --template <name>",
-    "Skip template selection and use this template",
+    "Skip template selection and use this template ID",
   )
   .action(
     async (options?: {
